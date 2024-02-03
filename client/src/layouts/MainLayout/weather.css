@@ -15,7 +15,7 @@ a:hover {
 
 
 body {
-    background      : url('../assets/img/BG.jpeg') no-repeat center center fixed;
+    background      : url('../../assets/img/BG.jpeg') no-repeat center center fixed;
     
     font-family     : 'Open Sans Condensed', sans-serif;
     font-size       : 16px;
