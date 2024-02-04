@@ -8,6 +8,7 @@ from .serializers import RegisterSerializer, UserSerializer
 
 class RegisterApi(generics.GenericAPIView):
     serializer_class = RegisterSerializer
+    authentication_classes = []
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

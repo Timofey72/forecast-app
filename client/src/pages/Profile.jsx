@@ -1,14 +1,25 @@
 import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+
+import { selectIsAuth, selectUsername } from '../redux/slices/auth';
 
 const Profile = () => {
-  const [username, setUsername] = React.useState('');
+  const isAuth = useSelector(selectIsAuth);
+
+  const name = useSelector(selectUsername);
+  const [username, setUsername] = React.useState(name);
   const [password, setPassword] = React.useState('');
   const [dateValue, setDateValue] = React.useState('2024-02-02');
 
-  const isError = false;
+  const [isError, setError] = React.useState(false);
   const isNotFound = false;
 
   const predictions = 10;
+
+  if (!isAuth) {
+    return <Navigate to='/' />;
+  }
 
   return (
     <>
@@ -37,6 +48,7 @@ const Profile = () => {
                 name='password'
                 className='form-control'
                 id='password'
+                value={password}
               />
             </div>
             {isError && <p className='form__error'>Произошла ошибка</p>}

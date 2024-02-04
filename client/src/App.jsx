@@ -1,4 +1,8 @@
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+
+import { fetchAuthMe } from './redux/slices/auth';
 
 import MainLayout from './layouts/MainLayout/MainLayout';
 import Index from './pages/Index';
@@ -8,6 +12,17 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 
 function App() {
+  const dispatch = useDispatch();
+  const [isLoading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    dispatch(fetchAuthMe()).finally(() => setLoading(false));
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Routes>
       <Route path='/' element={<MainLayout />}>

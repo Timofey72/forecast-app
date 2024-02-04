@@ -1,17 +1,31 @@
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
+import { selectIsAuth, selectIsAdmin, logout } from '../redux/slices/auth';
 
 const Header = () => {
-  const isAdmin = false;
-  const isAuth = true;
+  const dispatch = useDispatch();
+  const isAdmin = useSelector(selectIsAdmin);
+  const isAuth = useSelector(selectIsAuth);
+
+  const onClickLogout = () => {
+    if (window.confirm('Вы уверены, что хотите выйти из аккаунта?')) {
+      dispatch(logout());
+      window.localStorage.removeItem('token');
+      window.location.href = '/';
+    }
+  };
 
   return (
     <header>
       <div className='container d-flex justify-content-between align-items-center'>
-        <Link to='/' className='d-flex align-items-center text-decoration-none' style={{padding: '20px'}}>
+        <Link
+          to='/'
+          className='d-flex align-items-center text-decoration-none'
+          style={{ padding: '20px' }}>
           <span className='fs-3'>Прогноз погоды</span>
         </Link>
-        <nav className='d-none d-md-flex' style={{marginRight: '-300px'}}>
+        <nav className='d-none d-md-flex' style={{ marginRight: '-300px' }}>
           {isAdmin && (
             <a
               className='me-3 link-body-emphasis text-decoration-none fs-5'
@@ -32,7 +46,7 @@ const Header = () => {
             Цены
           </a>
         </nav>
-        <div className='d-flex' style={{marginRight: '-70px'}}>
+        <div className='d-flex' style={{ marginRight: '-70px' }}>
           {isAuth ? (
             <>
               <Link to='/profile'>
@@ -40,11 +54,9 @@ const Header = () => {
                   Профиль
                 </button>
               </Link>
-              <form method='POST'>
-                <button type='submit' className='button me-3 py-2 w-30 fs-5'>
-                  Выйти
-                </button>
-              </form>
+              <button onClick={onClickLogout} type='button' className='button me-3 py-2 w-30 fs-5'>
+                Выйти
+              </button>
             </>
           ) : (
             <>
@@ -64,6 +76,6 @@ const Header = () => {
       </div>
     </header>
   );
-}
+};
 
 export default Header;
