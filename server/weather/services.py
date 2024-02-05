@@ -145,7 +145,10 @@ def find_forecast_day(date: str, city: str):
     res = requests.get(url)
     result = res.json()
 
-    forecast_days = result['forecast']['forecastday']
+    forecast_days = result.get('forecast', '')
+    if not forecast_days:
+        return None
+    forecast_days = forecast_days['forecastday']
 
     for day in forecast_days:
         if day['date'] == date:

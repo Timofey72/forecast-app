@@ -11,13 +11,20 @@ import axios from '../axios';
 const Index = () => {
   const isAuth = useSelector(selectIsAuth);
 
+  const [isLoading, setLoading] = React.useState(true);
   const [isError, setError] = React.useState(false);
   const [noticeMessage, setNoticeMessage] = React.useState('');
   const [citiesInfo, setCitiesInfo] = React.useState([]);
+  const [city, setCity] = React.useState('');
+  const [prediction, setPrediction] = React.useState({});
 
-  const weatherInfo = true;
   const isFavoriteCity = true;
   const [dateDict, setDateDict] = React.useState({ current: '', min: '', max: '' });
+
+  const setFetchError = () => {
+    setError(true);
+    setNoticeMessage('Произошла ошибка при получении данных о погоде');
+  };
 
   React.useEffect(() => {
     const fetchWeather = () => {
@@ -34,13 +41,31 @@ const Index = () => {
           }
         })
         .catch(() => {
-          setError(true);
-          setNoticeMessage('Произошла ошибка при получении данных о погоде');
-        });
+          setFetchError();
+        })
+        .finally(() => setLoading(false));
     };
 
     fetchWeather();
   }, []);
+
+  const onSubmitWeatherForm = (e) => {
+    e.preventDefault();
+
+    const formdata = new FormData();
+    formdata.append('city', city);
+    console.log('Date format:', dateDict.current);
+    formdata.append('date', dateDict.current);
+
+    axios
+      .post('/weather/', formdata)
+      .then((res) => {
+        setPrediction(res.data.prediction);
+      })
+      .catch(() => {
+        setFetchError();
+      });
+  };
 
   if (!isAuth) {
     return <Navigate to='/login' />;
@@ -52,13 +77,16 @@ const Index = () => {
         <Notice isError={isError} message={noticeMessage} />
 
         <CheckWeather
-          weatherInfo={weatherInfo}
+          city={city}
+          setCity={setCity}
+          prediction={prediction}
           date={dateDict}
           setDateDict={setDateDict}
           isFavoriteCity={isFavoriteCity}
+          onSubmitForm={onSubmitWeatherForm}
         />
 
-        <CitiesList cities={citiesInfo} />
+        <CitiesList isLoading={isLoading} cities={citiesInfo} />
       </div>
     </div>
   );
