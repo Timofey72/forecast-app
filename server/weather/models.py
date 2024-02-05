@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 class City(models.Model):
     name = models.CharField(max_length=30)
     user_id = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, default=None)
+    is_favorite = models.BooleanField(default=False, verbose_name='Избранное')
 
     def __str__(self):
         return self.name
@@ -39,8 +40,3 @@ class Predictions(models.Model):
     class Meta:
         verbose_name = 'Прогноз'
         verbose_name_plural = 'Прогнозы'
-
-
-class Favorite(models.Model):
-    user_id = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=False, related_name='favorite')
-    city_id = models.ForeignKey('City', null=False, on_delete=models.CASCADE)

@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import City, Predictions, PrecipitationType
+
+
+admin.site.register(City)
+admin.site.register(Predictions)
+admin.site.register(PrecipitationType)

@@ -30,4 +30,5 @@ urlpatterns = [
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     path('api/user/', include('users.urls')),
+    path('api/weather/', include('weather.urls')),
 ]
