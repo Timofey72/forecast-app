@@ -26,8 +26,16 @@ class RegisterApi(generics.GenericAPIView):
 class UserInfoApi(views.APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
 
     def get(self, request):
         user = request.user
         serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        serializer = self.serializer_class(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
         return Response(serializer.data, status=status.HTTP_200_OK)

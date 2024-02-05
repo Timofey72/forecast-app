@@ -1,10 +1,12 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { selectIsAuth, selectUsername } from '../redux/slices/auth';
+import { selectIsAuth, selectUsername, fetchAuthMe } from '../redux/slices/auth';
+import axios from '../axios';
 
 const Profile = () => {
+  const dispatch = useDispatch();
   const isAuth = useSelector(selectIsAuth);
 
   const name = useSelector(selectUsername);
@@ -13,9 +15,41 @@ const Profile = () => {
   const [dateValue, setDateValue] = React.useState('2024-02-02');
 
   const [isError, setError] = React.useState(false);
+  const [errorText, setErrorText] = React.useState('');
+
   const isNotFound = false;
 
   const predictions = 10;
+
+  const onSubmitUserForm = (e) => {
+    e.preventDefault();
+    setError(false);
+    setErrorText('');
+
+    const formdata = new FormData();
+    if (username) formdata.append('username', username);
+    if (password) formdata.append('password', password);
+
+    axios
+      .put('/user/me/', formdata)
+      .then(async (res) => {
+        await dispatch(fetchAuthMe());
+        alert('Данные успешно обновлены')
+      })
+      .catch((err) => {
+        setError(true);
+        setErrorText('Произошла ошибка. Попробуйте еще раз.');
+
+        const usernameError = err.response?.data?.username;
+        const passwordError = err.response?.data?.password;
+
+        if (usernameError) {
+          setErrorText(usernameError);
+        } else if (passwordError) {
+          setErrorText(passwordError);
+        }
+      });
+  };
 
   if (!isAuth) {
     return <Navigate to='/' />;
@@ -27,7 +61,7 @@ const Profile = () => {
         <h2 style={{ textAlign: 'center', fontSize: '35px' }}>Кабинет пользователя</h2>
 
         <div>
-          <form method='POST'>
+          <form onSubmit={onSubmitUserForm} method='POST'>
             <div className='form-group'>
               <label htmlFor='login'>Логин пользователя:</label>
               <input
@@ -51,7 +85,7 @@ const Profile = () => {
                 value={password}
               />
             </div>
-            {isError && <p className='form__error'>Произошла ошибка</p>}
+            {isError && <p className='form__error'>{errorText}</p>}
             <button className='button form__button' type='submit'>
               Обновить данные
             </button>
