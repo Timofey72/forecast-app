@@ -17,8 +17,7 @@ const Index = () => {
   const [citiesInfo, setCitiesInfo] = React.useState([]);
   const [city, setCity] = React.useState('');
   const [prediction, setPrediction] = React.useState({});
-
-  const isFavoriteCity = true;
+  const [isFavorite, setFavorite] = React.useState(false);
   const [dateDict, setDateDict] = React.useState({ current: '', min: '', max: '' });
 
   const setFetchError = () => {
@@ -54,16 +53,33 @@ const Index = () => {
 
     const formdata = new FormData();
     formdata.append('city', city);
-    console.log('Date format:', dateDict.current);
     formdata.append('date', dateDict.current);
 
     axios
       .post('/weather/', formdata)
       .then((res) => {
         setPrediction(res.data.prediction);
+        setFavorite(res.data.prediction.city.is_favorite);
       })
       .catch(() => {
         setFetchError();
+      });
+  };
+
+  const onClickChangeFavorite = () => {
+    axios
+      .post('/weather/city/', { city })
+      .then((res) => {
+        if (isFavorite) {
+          setError(true);
+        }
+
+        setFavorite(!isFavorite);
+        setNoticeMessage(res.data.message);
+      })
+      .catch(() => {
+        setError(true);
+        setNoticeMessage('Произошла ошибка');
       });
   };
 
@@ -82,8 +98,9 @@ const Index = () => {
           prediction={prediction}
           date={dateDict}
           setDateDict={setDateDict}
-          isFavoriteCity={isFavoriteCity}
+          isFavorite={isFavorite}
           onSubmitForm={onSubmitWeatherForm}
+          onClickChangeFavorite={onClickChangeFavorite}
         />
 
         <CitiesList isLoading={isLoading} cities={citiesInfo} />

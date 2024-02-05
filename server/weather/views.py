@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from rest_framework import views, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -46,7 +45,10 @@ class WeatherApi(views.APIView):
 
         weather = {
             'date': date,
-            'city': city,
+            'city': {
+                'name': city,
+                'is_favorite': city_obj.is_favorite
+            },
             'temp': weather_data['avgtemp_c'],
             'precipitation': precipitation,
             'prob_precipitation': prob_precipitation,
@@ -55,3 +57,21 @@ class WeatherApi(views.APIView):
         }
         data = {'prediction': weather}
         return Response(data, status=status.HTTP_200_OK)
+
+
+class CityApi(views.APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        city = request.data.get('city')
+        city_obj = City.objects.get(user_id=request.user, name=city)
+
+        is_favorite = city_obj.is_favorite
+        city_obj.is_favorite = not is_favorite
+        city_obj.save()
+
+        if is_favorite:
+            return Response({'message': f'Вы удалили из избранного город {city}'}, status=status.HTTP_200_OK)
+
+        return Response({'message': f'Вы добавили в избранное город {city}'}, status=status.HTTP_200_OK)

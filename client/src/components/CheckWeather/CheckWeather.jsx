@@ -2,7 +2,16 @@ import React from 'react';
 
 import './CheckWeather.css';
 
-const CheckWeather = ({ date, setDateDict, isFavoriteCity, prediction, onSubmitForm, city, setCity }) => {
+const CheckWeather = ({
+  date,
+  setDateDict,
+  isFavorite,
+  prediction,
+  onSubmitForm,
+  onClickChangeFavorite,
+  city,
+  setCity,
+}) => {
   return (
     <div style={{ margin: '0' }} className='center-form col-5 offset-1'>
       <h1>Погода в вашем городе</h1>
@@ -28,7 +37,7 @@ const CheckWeather = ({ date, setDateDict, isFavoriteCity, prediction, onSubmitF
             value={date.current}
             min={date.min}
             max={date.max}
-            onChange={(e) => setDateDict({current: e.target.value, min: date.min, max: date.max})}
+            onChange={(e) => setDateDict({ current: e.target.value, min: date.min, max: date.max })}
           />
         </div>
 
@@ -37,13 +46,16 @@ const CheckWeather = ({ date, setDateDict, isFavoriteCity, prediction, onSubmitF
 
       {Object.keys(prediction).length !== 0 && (
         <>
-          <h2 style={{ marginTop: '20px', width: '600px' }}>Информация о погоде {prediction.date}</h2>
+          <h2 style={{ marginTop: '20px', width: '600px' }}>
+            Информация о погоде {prediction.date}
+          </h2>
           <div className='alert alert-warning'>
             <div className='row'>
               <div className='col-9'>
-                <b>Город:</b> {prediction.city}
+                <b>Город:</b> {prediction.city.name}
                 <br />
-                <b>Температура:</b> {prediction.temp}<sup>o</sup>
+                <b>Температура:</b> {prediction.temp}
+                <sup>o</sup>
                 <br />
                 <b>Осадки:</b> {prediction.precipitation}
                 <br />
@@ -54,22 +66,15 @@ const CheckWeather = ({ date, setDateDict, isFavoriteCity, prediction, onSubmitF
               <div className='col-2 offset-1'>
                 <img src={prediction.icon} alt='Фото погоды' className='img-thumbnail' />
               </div>
-              <form method='POST'>
-                <input type='hidden' value='Moskow' id='city' name='city' />
-
-                {isFavoriteCity ? (
-                  <>
-                    <input type='hidden' value='delete' id='delete' name='delete' />
-                    <button id='favorite-button' className='favorite_button' type='submit'>
-                      <i className='fa-solid fa-star' style={{ color: 'orange' }}></i>
-                    </button>
-                  </>
-                ) : (
-                  <button id='favorite-button' className='favorite_button' type='submit'>
-                    <i className='fa-regular fa-star' style={{ color: 'orange' }}></i>
-                  </button>
-                )}
-              </form>
+              <button
+                onClick={onClickChangeFavorite}
+                id='favorite-button'
+                className='favorite_button'
+                type='submit'>
+                <i
+                  className={(isFavorite ? 'fa-solid' : 'fa-regular') + ' fa-star'}
+                  style={{ color: 'orange' }}></i>
+              </button>
             </div>
           </div>
         </>
