@@ -27,11 +27,9 @@ const Header = () => {
         </Link>
         <nav className='d-none d-md-flex' style={{ marginRight: '-300px' }}>
           {isAdmin && (
-            <a
-              className='me-3 link-body-emphasis text-decoration-none fs-5'
-              href="{% url 'graph-admin' %}">
+            <Link to='/graph' className='me-3 link-body-emphasis text-decoration-none fs-5'>
               График
-            </a>
+            </Link>
           )}
           <Link to='/' className='me-3 link-body-emphasis text-decoration-none fs-5'>
             Главная

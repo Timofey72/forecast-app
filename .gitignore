@@ -40,3 +40,5 @@ server/.env.prod
 server/db.sqlite3
 server/staticfiles
 media
+plot.png
+graph.pdf

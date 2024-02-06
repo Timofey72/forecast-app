@@ -2,6 +2,7 @@ from rest_framework import views, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from .graph_service import filter_predictions_and_sort_by_dates, create_and_save_graph, create_pdf
 from .models import City, Predictions, PrecipitationType
 from .neiron.prediction import get_probability_from_ai
 from .serializers import CitySerializer, PredictionSerializer
@@ -120,3 +121,37 @@ class PredictionApi(views.APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         prediction.first().delete()
         return Response(status=status.HTTP_200_OK)
+
+
+class GraphApi(views.APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    @staticmethod
+    def generate_graph_and_get_accuracy(predictions) -> float:
+        predictions = filter_predictions_and_sort_by_dates(predictions)
+
+        dates = [prediction.date for prediction in predictions]
+        probabilities = [prediction.precipitation_probability for prediction in predictions]
+        probabilities_ai = [prediction.precipitation_probability_ai for prediction in predictions]
+
+        accuracy = 0
+        len_prob = len(probabilities)
+        for i in range(len_prob):
+            accuracy = round(sum(probabilities_ai) / sum(probabilities) * 100, 2)
+
+        plot_file_path = create_and_save_graph(dates, probabilities, probabilities_ai)
+        create_pdf(plot_file_path, f'Точность нейронной сети: {accuracy}', 'graph.pdf')
+        return accuracy
+
+    def get(self, request):
+        if request.user.is_superuser:
+            predictions = Predictions.objects.all()
+        else:
+            predictions = Predictions.objects.filter(user_id=request.user)
+        if predictions.count() < 10:
+            return Response({'message': 'Недостаточно запросов для формирования графика'},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        accuracy = self.generate_graph_and_get_accuracy(predictions)
+        return Response({'accuracy': accuracy, 'predictions_count': predictions.count()}, status=status.HTTP_200_OK)

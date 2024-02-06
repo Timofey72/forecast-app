@@ -12,6 +12,9 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Favorites from './pages/Favorites';
 import CityHistory from './pages/CityHistory';
+import Graph from './pages/Graph';
+
+export const API_DOMAIN = 'http://localhost:8000'
 
 function App() {
   const dispatch = useDispatch();
@@ -34,6 +37,7 @@ function App() {
         <Route path='/profile' element={<Profile />} />
         <Route path='/favorites' element={<Favorites />} />
         <Route path='/favorites/:cityId' element={<CityHistory />} />
+        <Route path='/graph' element={<Graph />} />
         <Route path='*' element={<NotFound />} />
       </Route>
     </Routes>
