@@ -72,15 +72,19 @@ class CityApi(views.APIView):
     def post(self, request):
         city = request.data.get('city')
         city_obj = City.objects.get(user_id=request.user, name=city)
-
-        is_favorite = city_obj.is_favorite
-        city_obj.is_favorite = not is_favorite
+        city_obj.is_favorite ^= True
         city_obj.save()
 
-        if is_favorite:
-            return Response({'message': f'Вы удалили из избранного город {city}'}, status=status.HTTP_200_OK)
+        if city_obj.is_favorite:
+            message = f'Вы добавили в избранное город {city}'
+        else:
+            message = f'Вы удалили из избранного город {city}'
 
-        return Response({'message': f'Вы добавили в избранное город {city}'}, status=status.HTTP_200_OK)
+        return Response({'message': message}, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        City.objects.get(id=pk, user_id=request.user).delete()
+        return Response(status=status.HTTP_200_OK)
 
 
 class PredictionApi(views.APIView):
@@ -89,16 +93,19 @@ class PredictionApi(views.APIView):
 
     def get(self, request):
         city_id = request.GET.get('city_id', '')
-        if city_id:
-            predictions_list = Predictions.objects.filter(user_id=request.user, city_id__id=city_id)
-            if not predictions_list.exists():
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            serializer = PredictionSerializer(instance=predictions_list, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
+        date = request.GET.get('date', '')
         predictions_list = Predictions.objects.filter(user_id=request.user)
+
+        # filtering data
+        if date:
+            predictions_list = predictions_list.filter(date=date)
+        if city_id:
+            predictions_list = predictions_list.filter(city_id__id=city_id)
+        if not predictions_list.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         serializer = PredictionSerializer(instance=predictions_list, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'predictions': serializer.data, 'dates': get_dates()}, status=status.HTTP_200_OK)
 
     def delete(self, request, pk):
         prediction = Predictions.objects.filter(id=pk, user_id=request.user)

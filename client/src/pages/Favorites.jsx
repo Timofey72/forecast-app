@@ -9,14 +9,21 @@ const Favorites = () => {
   const isAuth = useSelector(selectIsAuth);
   const [cities, setCities] = React.useState([]);
 
+  const fetchCities = () => {
+    axios.get('/weather/city/').then((res) => setCities(res.data));
+  };
+
   React.useEffect(() => {
-    const fetchCities = () => {
-      axios.get('/weather/city/').then((res) => setCities(res.data));
-    };
-    if (isAuth) {
-      fetchCities();
-    }
+    if (isAuth) fetchCities();
   }, []);
+
+  const onClickDeleteCity = (e, cityId) => {
+    e.preventDefault();
+    axios
+      .delete(`/weather/city/${cityId}`)
+      .then(() => fetchCities())
+      .catch((err) => console.log(`Error: ${err}`));
+  };
 
   if (!isAuth) {
     return <Navigate to='/login' />;
@@ -34,7 +41,10 @@ const Favorites = () => {
             <div
               style={{ cursor: 'pointer', width: '400px', margin: '10px auto 20px' }}
               className='alert alert-warning'>
-              <button className='button' style={{ position: 'absolute', right: '20px' }}>
+              <button
+                onClick={(e) => onClickDeleteCity(e, city.id)}
+                className='button'
+                style={{ position: 'absolute', right: '20px', zIndex: '9' }}>
                 <i className='fa-solid fa-trash' />
               </button>
               <h4 style={{ margin: '0' }}>Город: {city.name}</h4>

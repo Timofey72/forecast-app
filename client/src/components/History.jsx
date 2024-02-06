@@ -5,12 +5,15 @@ import axios from '../axios';
 
 const History = () => {
   const [predictions, setPredictions] = React.useState([]);
-  const [dateValue, setDateValue] = React.useState('2024-02-02');
+  const [dateDict, setDateDict] = React.useState({ current: '', min: '', max: '' });
 
   const fetchPredictions = () => {
     axios
       .get('/weather/prediction/')
-      .then((res) => setPredictions(res.data))
+      .then((res) => {
+        setPredictions(res.data.predictions);
+        setDateDict(res.data.dates);
+      })
       .catch((err) => console.log(`Error: ${err}`));
   };
 
@@ -25,6 +28,23 @@ const History = () => {
       .catch((err) => {
         console.log(`Error: ${err}`);
       });
+  };
+
+  const onSubmitFilterForm = (e) => {
+    e.preventDefault();
+
+    axios
+      .get(`/weather/prediction/?date=${dateDict.current}`)
+      .then((res) => setPredictions(res.data.predictions))
+      .catch((err) => {
+        setPredictions([]);
+        console.log(`Error: ${err}`);
+      });
+  };
+
+  const onClickReset = (e) => {
+    e.preventDefault();
+    fetchPredictions();
   };
 
   return (
@@ -44,30 +64,31 @@ const History = () => {
         </Link>
       </div>
       <h3 style={{ marginTop: '10px' }}>История запросов:</h3>
-
+      <form
+        onSubmit={onSubmitFilterForm}
+        action="{% url 'filter-forecast' %}"
+        className='filter-forecast'
+        method='POST'>
+        <div className='form-floating'>
+          <input
+            type='date'
+            id='date'
+            name='date'
+            value={dateDict.current}
+            min={dateDict.min}
+            max={dateDict.max}
+            onChange={(e) =>
+              setDateDict({ current: e.target.value, min: dateDict.min, max: dateDict.max })
+            }
+          />
+        </div>
+        <input type='submit' name='send' value='Применить' className='btn btn-warning' />
+        <button onClick={onClickReset} className='btn btn-warning' style={{ textShadow: 'none' }}>
+          Сбросить
+        </button>
+      </form>
       {predictions.length > 0 ? (
         <>
-          <form action="{% url 'filter-forecast' %}" className='filter-forecast' method='POST'>
-            <div className='form-floating'>
-              <input
-                type='date'
-                id='date'
-                name='date'
-                value={dateValue}
-                min='2024-01-02'
-                max='2024-03-02'
-                onChange={(e) => setDateValue(e.target.value)}
-              />
-            </div>
-
-            <input type='submit' name='send' value='Применить' className='btn btn-warning' />
-            <a
-              href="{% url 'filter-forecast' %}"
-              className='btn btn-warning'
-              style={{ textShadow: 'none' }}>
-              Сбросить
-            </a>
-          </form>
           {predictions.map((pred) => (
             <div key={pred.id} className='alert alert-warning'>
               <div className='row'>
@@ -93,7 +114,7 @@ const History = () => {
           ))}
         </>
       ) : (
-        <p>Вы еще не делали запросов.</p>
+        <p>Ничего не найдено.</p>
       )}
     </>
   );

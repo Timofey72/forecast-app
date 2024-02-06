@@ -63,7 +63,7 @@ const CheckWeather = ({ dateDict, setDateDict, isFavorite, prediction, onSubmitF
                 <img src={prediction.icon} alt='Фото погоды' className='img-thumbnail' />
               </div>
               <button
-                onClick={() => onClickChangeFavorite(city)}
+                onClick={() => onClickChangeFavorite(prediction.city.name)}
                 id='favorite-button'
                 className='favorite_button'
                 type='submit'>
