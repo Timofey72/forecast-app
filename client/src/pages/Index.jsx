@@ -15,10 +15,9 @@ const Index = () => {
   const [isError, setError] = React.useState(false);
   const [noticeMessage, setNoticeMessage] = React.useState('');
   const [citiesInfo, setCitiesInfo] = React.useState([]);
-  const [city, setCity] = React.useState('');
+  const [dateDict, setDateDict] = React.useState({ current: '', min: '', max: '' });
   const [prediction, setPrediction] = React.useState({});
   const [isFavorite, setFavorite] = React.useState(false);
-  const [dateDict, setDateDict] = React.useState({ current: '', min: '', max: '' });
 
   const setFetchError = () => {
     setError(true);
@@ -45,10 +44,12 @@ const Index = () => {
         .finally(() => setLoading(false));
     };
 
-    fetchWeather();
+    if (isAuth) {
+      fetchWeather();
+    }
   }, []);
 
-  const onSubmitWeatherForm = (e) => {
+  const onSubmitWeatherForm = (e, city, dateDict) => {
     e.preventDefault();
 
     const formdata = new FormData();
@@ -66,7 +67,8 @@ const Index = () => {
       });
   };
 
-  const onClickChangeFavorite = () => {
+  const onClickChangeFavorite = (city) => {
+    setError(false);
     axios
       .post('/weather/city/', { city })
       .then((res) => {
@@ -93,11 +95,9 @@ const Index = () => {
         <Notice isError={isError} message={noticeMessage} />
 
         <CheckWeather
-          city={city}
-          setCity={setCity}
-          prediction={prediction}
-          date={dateDict}
+          dateDict={dateDict}
           setDateDict={setDateDict}
+          prediction={prediction}
           isFavorite={isFavorite}
           onSubmitForm={onSubmitWeatherForm}
           onClickChangeFavorite={onClickChangeFavorite}

@@ -10,6 +10,7 @@ import NotFound from './pages/NotFound/NotFound';
 import Registration from './pages/Registration';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import Favorites from './pages/Favorites';
 
 function App() {
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path='/registration' element={<Registration />} />
         <Route path='/profile' element={<Profile />} />
+        <Route path='/favorites' element={<Favorites />} />
         <Route path='*' element={<NotFound />} />
       </Route>
     </Routes>

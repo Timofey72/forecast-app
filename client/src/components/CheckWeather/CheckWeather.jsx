@@ -2,20 +2,14 @@ import React from 'react';
 
 import './CheckWeather.css';
 
-const CheckWeather = ({
-  date,
-  setDateDict,
-  isFavorite,
-  prediction,
-  onSubmitForm,
-  onClickChangeFavorite,
-  city,
-  setCity,
-}) => {
+const CheckWeather = ({ dateDict, setDateDict, isFavorite, prediction, onSubmitForm, onClickChangeFavorite }) => {
+  const [city, setCity] = React.useState('');
+  
+
   return (
     <div style={{ margin: '0' }} className='center-form col-5 offset-1'>
       <h1>Погода в вашем городе</h1>
-      <form onSubmit={onSubmitForm} method='post'>
+      <form onSubmit={(e) => onSubmitForm(e, city, dateDict)} method='post'>
         <label htmlFor='city'>Город:</label>
         <input
           value={city}
@@ -34,10 +28,12 @@ const CheckWeather = ({
             type='date'
             id='date'
             name='date'
-            value={date.current}
-            min={date.min}
-            max={date.max}
-            onChange={(e) => setDateDict({ current: e.target.value, min: date.min, max: date.max })}
+            value={dateDict.current}
+            min={dateDict.min}
+            max={dateDict.max}
+            onChange={(e) =>
+              setDateDict({ current: e.target.value, min: dateDict.min, max: dateDict.max })
+            }
           />
         </div>
 
@@ -67,7 +63,7 @@ const CheckWeather = ({
                 <img src={prediction.icon} alt='Фото погоды' className='img-thumbnail' />
               </div>
               <button
-                onClick={onClickChangeFavorite}
+                onClick={() => onClickChangeFavorite(city)}
                 id='favorite-button'
                 className='favorite_button'
                 type='submit'>

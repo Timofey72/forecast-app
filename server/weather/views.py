@@ -4,6 +4,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import City, Predictions, PrecipitationType
 from .neiron.prediction import get_probability_from_ai
+from .serializers import CitySerializer, PredictionSerializer
 from .services import get_dates, get_cities_info, find_forecast_day, get_probability_and_precip_from_json, convert_date
 
 
@@ -63,6 +64,11 @@ class CityApi(views.APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request):
+        cities = City.objects.filter(user_id=request.user, is_favorite=True)
+        serializer = CitySerializer(instance=cities, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def post(self, request):
         city = request.data.get('city')
         city_obj = City.objects.get(user_id=request.user, name=city)
@@ -75,3 +81,28 @@ class CityApi(views.APIView):
             return Response({'message': f'Вы удалили из избранного город {city}'}, status=status.HTTP_200_OK)
 
         return Response({'message': f'Вы добавили в избранное город {city}'}, status=status.HTTP_200_OK)
+
+
+class PredictionApi(views.APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        city_id = request.GET.get('city_id', '')
+        if city_id:
+            predictions_list = Predictions.objects.filter(user_id=request.user, city_id__id=city_id)
+            if not predictions_list.exists():
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            serializer = PredictionSerializer(instance=predictions_list, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        predictions_list = Predictions.objects.filter(user_id=request.user)
+        serializer = PredictionSerializer(instance=predictions_list, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        prediction = Predictions.objects.filter(id=pk, user_id=request.user)
+        if not prediction.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        prediction.first().delete()
+        return Response(status=status.HTTP_200_OK)
