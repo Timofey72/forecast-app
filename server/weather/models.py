@@ -8,7 +8,7 @@ class City(models.Model):
     is_favorite = models.BooleanField(default=False, verbose_name='Избранное')
 
     def __str__(self):
-        return self.name
+        return f'{self.id}. {self.name}'
 
     class Meta:
         verbose_name = 'Город'

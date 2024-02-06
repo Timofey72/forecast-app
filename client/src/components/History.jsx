@@ -24,10 +24,8 @@ const History = () => {
   const onClickDelete = (pred_id) => {
     axios
       .delete(`/weather/prediction/${pred_id}`)
-      .then(() => fetchPredictions())
-      .catch((err) => {
-        console.log(`Error: ${err}`);
-      });
+      .then(fetchPredictions)
+      .catch((err) => console.log(`Error: ${err}`));
   };
 
   const onSubmitFilterForm = (e) => {

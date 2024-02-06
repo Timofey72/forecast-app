@@ -11,6 +11,7 @@ import Registration from './pages/Registration';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Favorites from './pages/Favorites';
+import CityHistory from './pages/CityHistory';
 
 function App() {
   const dispatch = useDispatch();
@@ -32,6 +33,7 @@ function App() {
         <Route path='/registration' element={<Registration />} />
         <Route path='/profile' element={<Profile />} />
         <Route path='/favorites' element={<Favorites />} />
+        <Route path='/favorites/:cityId' element={<CityHistory />} />
         <Route path='*' element={<NotFound />} />
       </Route>
     </Routes>
